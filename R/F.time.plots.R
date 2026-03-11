@@ -87,7 +87,7 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
    }
    # Extract F.Fmsy if present:
    {  FFmsy.found = FALSE}
-   FFmsycol <- grep("F.Fmsy", names(Fdata))
+   FFmsycol <- grep("F.Fmsy$", names(Fdata))
    if (length(FFmsycol) > 0)
    {  FFmsy <- Fdata[,FFmsycol]
       Fdata <- Fdata[,-FFmsycol, drop = FALSE]

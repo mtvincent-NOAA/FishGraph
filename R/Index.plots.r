@@ -420,12 +420,11 @@ if (resid.analysis) {
 
     if (resid.tests=="runs") {
       text(x=1.5,y=-1,labels="Runs test:",adj=c(1,0.5),cex=1,font=2)
-
       if(runs.test.v2.out$p.value<0.05){sign.col="red"
         sign.pos=1.85}
-      if(runs.test.v2.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+      if(runs.test.v2.out$p.value>=0.05&runs.test.v2.out$p.value<=0.1){sign.col="yellow"
        sign.pos=1.75}
-      if(runs.test.v2.out$p.value>0.0999){sign.col="green3"
+      if(runs.test.v2.out$p.value>0.1){sign.col="green3"
         sign.pos=1.65}
       points(x=sign.pos,y=-1,pch=16,col=sign.col,cex=2.25)
 
@@ -448,83 +447,83 @@ if (resid.analysis) {
 
     if(runs.test.v2.out$p.value<0.05){sign.col="red"
                                       sign.pos=1.85}
-    if(runs.test.v2.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(runs.test.v2.out$p.value>=0.05&runs.test.v2.out$p.value<=0.1){sign.col="yellow"
                                                                 sign.pos=1.75}
-    if(runs.test.v2.out$p.value>0.0999){sign.col="green3"
+    if(runs.test.v2.out$p.value>0.1){sign.col="green3"
                                         sign.pos=1.65}
     points(x=sign.pos,y=-1,pch=16,col=sign.col,cex=2.25)
 
     if(bptest.out$p.value<0.05){sign.col="red"
                                 sign.pos=1.85}
-    if(bptest.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(bptest.out$p.value>=0.05&bptest.out$p.value<=0.1){sign.col="yellow"
                                                          sign.pos=1.75}
-    if(bptest.out$p.value>0.0999){sign.col="green3"
+    if(bptest.out$p.value>0.1){sign.col="green3"
                                   sign.pos=1.65}
     points(x=sign.pos,y=-2,pch=16,col=sign.col,cex=2.25)
 
     if(hmctest.out$p.value<0.05){sign.col="red"
                                  sign.pos=1.85}
-    if(hmctest.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(hmctest.out$p.value>=0.05&hmctest.out$p.value<=0.1){sign.col="yellow"
                                                           sign.pos=1.75}
-    if(hmctest.out$p.value>0.0999){sign.col="green3"
+    if(hmctest.out$p.value>0.1){sign.col="green3"
                                    sign.pos=1.65}
     points(x=sign.pos,y=-3,pch=16,col=sign.col,cex=2.25)
 
     if(bgtest.out$p.value<0.05){sign.col="green3"
                                 sign.pos=1.65}
-    if(bgtest.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(bgtest.out$p.value>=0.05&bgtest.out$p.value<=0.1){sign.col="yellow"
                                                          sign.pos=1.75}
-    if(bgtest.out$p.value>0.0999){sign.col="red"
+    if(bgtest.out$p.value>0.1){sign.col="red"
                                   sign.pos=1.85}
     points(x=sign.pos,y=-4,pch=16,col=sign.col,cex=2.25)
 
     if(dwtest.out$p.value<0.05){sign.col="green3"
                                 sign.pos=1.65}
-    if(dwtest.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(dwtest.out$p.value>=0.05&dwtest.out$p.value<=0.1){sign.col="yellow"
                                                          sign.pos=1.75}
-    if(dwtest.out$p.value>0.0999){sign.col="red"
+    if(dwtest.out$p.value>0.1){sign.col="red"
                                   sign.pos=1.85}
     points(x=sign.pos,y=-5,pch=16,col=sign.col,cex=2.25)
 
    if (n.res > 4) {
       if(lillie.test.out$p.value<0.05){sign.col="red"
                                        sign.pos=1.85}
-      if(lillie.test.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+      if(lillie.test.out$p.value>=0.05&lillie.test.out$p.value<=0.1){sign.col="yellow"
                                                                 sign.pos=1.75}
-      if(lillie.test.out$p.value>0.0999){sign.col="green3"
+      if(lillie.test.out$p.value>0.1){sign.col="green3"
                                          sign.pos=1.65}
       points(x=sign.pos,y=-6,pch=16,col=sign.col,cex=2.25)
    }
     if (n.res > 7) {
       if(ad.test.out$p.value<0.05){sign.col="red"
                                    sign.pos=1.85}
-      if(ad.test.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+      if(ad.test.out$p.value>=0.05&ad.test.out$p.value<=0.1){sign.col="yellow"
                                                             sign.pos=1.75}
-      if(ad.test.out$p.value>0.0999){sign.col="green3"
+      if(ad.test.out$p.value>0.1){sign.col="green3"
                                      sign.pos=1.65}
       points(x=sign.pos,y=-7,pch=16,col=sign.col,cex=2.25)
     }
     if(pearson.test.out$p.value<0.05){sign.col="red"
                                       sign.pos=1.85}
-    if(pearson.test.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(pearson.test.out$p.value>=0.05&pearson.test.out$p.value<=0.1){sign.col="yellow"
                                                                sign.pos=1.75}
-    if(pearson.test.out$p.value>0.0999){sign.col="green3"
+    if(pearson.test.out$p.value>0.1){sign.col="green3"
                                         sign.pos=1.65}
     points(x=sign.pos,y=-8,pch=16,col=sign.col,cex=2.25)
 
     if(shapiro.test.out$p.value<0.05){sign.col="red"
                                       sign.pos=1.85}
-    if(shapiro.test.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(shapiro.test.out$p.value>=0.05&shapiro.test.out$p.value<=0.1){sign.col="yellow"
                                                                sign.pos=1.75}
-    if(shapiro.test.out$p.value>0.0999){sign.col="green3"
+    if(shapiro.test.out$p.value>0.1){sign.col="green3"
                                         sign.pos=1.65}
     points(x=sign.pos,y=-9,pch=16,col=sign.col,cex=2.25)
 
     if(pp.test.out$p.value<0.05){sign.col="green3"
                                  sign.pos=1.65}
-    if(pp.test.out$p.value>0.0499&bptest.out$p.value<0.1){sign.col="yellow"
+    if(pp.test.out$p.value>=0.05&pp.test.out$p.value<=0.1){sign.col="yellow"
                                                           sign.pos=1.75}
-    if(pp.test.out$p.value>0.0999){sign.col="red"
+    if(pp.test.out$p.value>0.1){sign.col="red"
                                    sign.pos=1.85}
     points(x=sign.pos,y=-10,pch=16,col=sign.col,cex=2.25)
 
@@ -545,9 +544,9 @@ if (resid.analysis) {
       text(x=2.25,y=-3,labels=round(hmctest.out$p.value,4),cex=1,font=1)
       text(x=2.25,y=-4,labels=round(bgtest.out$p.value,4),cex=1,font=1)
       text(x=2.25,y=-5,labels=round(dwtest.out$p.value,4),cex=1,font=1)
-      if (n.res > 4) {text(x=2.25,y=-5,labels=round(lillie.test.out$p.value,4),cex=1,font=1)
+      if (n.res > 4) {text(x=2.25,y=-6,labels=round(lillie.test.out$p.value,4),cex=1,font=1)
       } else {text(x=2.25,y=-6,labels="NA",cex=1,font=1)}
-      if (n.res > 7) {text(x=2.25,y=-6,labels=round(ad.test.out$p.value,4),cex=1,font=1)
+      if (n.res > 7) {text(x=2.25,y=-7,labels=round(ad.test.out$p.value,4),cex=1,font=1)
       } else {text(x=2.25,y=-7,labels="NA",cex=1,font=1)}
       text(x=2.25,y=-8,labels=round(pearson.test.out$p.value,4),cex=1,font=1)
       text(x=2.25,y=-9,labels=round(shapiro.test.out$p.value,4),cex=1,font=1)

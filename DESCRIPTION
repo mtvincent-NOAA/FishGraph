@@ -1,10 +1,10 @@
 Package: FishGraph
 Type: Package
-Title: Visualizations for fishery  stock-assessment.
-Version: 2.0.5
-Date: 2024-08-13
+Title: Visualizations for fishery BAM stock-assessments.
+Version: 2.0.6
+Date: 2026-03-11
 Author: M Prager, E Williams, K Shertzer, R Cheshire, K Purcell, M T Vincent
-Maintainer: Matt Vincent <matthew.vincent@noaa.gov>, Kyle Shertzer <kyle.shertzer@noaa.gov>
+Maintainer: Matt Vincent <matthew.vincent@noaa.gov>
 Description: This package is a set of functions that produce graphical representations of stock-assessment output.
 License: not subject to copyright
 LazyData: true
