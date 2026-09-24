@@ -22,6 +22,7 @@
 #' columns (observed and predicted). When \code{FALSE}, each column represents
 #' observed landings.
 #' @param D.obs.pre Same as the preceding, but for discards.
+#' @param notconfidential a dataframe with names the same as landings and entries are booleans where true is confidential data. Will need to be input.
 #'
 #' @return Graphics
 #'
@@ -39,7 +40,7 @@ Landings.plots <-
 function(x, DataName = deparse(substitute(x)), draft = TRUE,
     graphics.type = NULL, use.color = TRUE, from.zero = TRUE,
     L.units = x$info$units.landings, D.units = x$info$units.discards,
-    start.drop = 0, L.obs.pre = TRUE, D.obs.pre = TRUE)
+    start.drop = 0, L.obs.pre = TRUE, D.obs.pre = TRUE,confidential=NULL)
 {
     ### Check for required data:
     if (! ("t.series" %in% names(x)))
@@ -66,6 +67,11 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
     }
     nlandings <- ncol(landings)
     ndiscards <- ncol(discards)
+    ## Check confidential is same length as landings and discards
+    if(dim(landings)[1]!=dim(confidential)[1])
+    {   warning("number of years in Landings do not match number of years in confidential.", immediate. = TRUE)
+        return(invisible(-1))
+    }
 
     ### Does data set include any landings?
     if (nlandings == 0)
@@ -89,6 +95,7 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
     ss     <- first:nrow(landings)
     landings <- landings[ss,]
     discards <- discards[ss,]
+    confidential <- confidential[ss,]
     year <- year[ss]
     if (L.obs.pre) nlandings <- nlandings / 2
     if (D.obs.pre) ndiscards <- ndiscards / 2
@@ -116,13 +123,19 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
             y1 <- landings[, 2 * iplot]      # predicted L
             y2 <- landings[, 2 * iplot - 1]  # observed L
             series = FGTrimName(names(landings)[2 * iplot], removePrefix = 0,
-                removeSuffix = 1)
+                                removeSuffix = 1)
+            if (series %in% names(confidential)) {
+                y2[confidential[,series]] <- NA  # confidential data don't plot
+            }
         }
         else
         {   FGtype = "1line"
             y1 = landings[, iplot]
             y2 = NULL
             series = names(landings)[iplot]
+            if (series %in% names(confidential)) {
+                y1[confidential[,series]] <- NA  # confidential data don't plot
+            }
         }
         if (from.zero) yrange = c(0, max(y1, y2, na.rm = TRUE))
         else yrange <- range(y1, y2, na.rm = TRUE)
@@ -147,12 +160,18 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
                 y1 <- discards[, 2 * iplot]        # predicted D
                 y2 <- discards[, 2 * iplot - 1]    # observed D
                 series = FGTrimName(names(discards)[2 * iplot], 0, 1)
+                if (series %in% names(confidential)) {
+                    y2[confidential[,series]] <- NA  # confidential data don't plot
+                }
             }
             else
             {   FGtype = "1line"
                 y1 = discards[, iplot]
                 y2 = NULL
                 series = names(discards)[iplot]
+                if (series %in% names(confidential)) {
+                    y1[confidential[,series]] <- NA  # confidential data don't plot
+                }
             }
             if (from.zero)
             {   yrange = c(0, max(y1, y2, na.rm = TRUE))

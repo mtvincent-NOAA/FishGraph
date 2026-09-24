@@ -64,7 +64,7 @@ runs.test.v2=function (y, plot.it = FALSE, alternative = c("two.sided", "positiv
 #' @return runs test p value and 3 x sigma limits
 #'
 #' @author Henning Winker (JRC-EC) and Laurence Kell (Sea++) Edited by Matt Vincent (NOAA SEFSC)
-runs.sig3 <- function(x,type="resid",mixing="positive.correlated") {
+runs.sig3 <- function(x,type="resid",mixing="two.sided") {
   if(type=="resid"){
       mu = 0}else{mu = mean(x, na.rm = TRUE)}
   alternative= c("two.sided", "positive.correlated", "negative.correlated")[which(c("two.sided", "positive.correlated", "negative.correlated")%in%mixing)]

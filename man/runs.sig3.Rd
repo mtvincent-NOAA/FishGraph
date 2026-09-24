@@ -5,7 +5,7 @@
 \title{Function to do runs.test and calculate 3 sigma limits
 runs test is conducted with library(randtests)}
 \usage{
-runs.sig3(x, type = "resid", mixing = "positive.correlated")
+runs.sig3(x, type = "resid", mixing = "two.sided")
 }
 \arguments{
 \item{x}{residuals from CPUE fits}

@@ -242,7 +242,7 @@ Index.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
 
         if (runs.box){
             lims=runstest$sig3lim
-            cols =  ifelse(runstest$p.runs<0.01,rgb(1,0,0,0.5),ifelse(runstest$p.runs<0.05,rgb(1,0.647,0,0.5),rgb(0,1,0,0.5)))
+            cols =  ifelse(runstest$p.runs<0.01,rgb(1,0,0,0.5),ifelse(runstest$p.runs<0.05,rgb(1,0.647,0,0.5),ifelse(runstest$p.runs<0.10,rgb(1, 1, 0.03,.5),rgb(0,1,0,0.5))))
             rect(min(ts$year-1),lims[1],max(ts$year+1),lims[2],col=cols,border=cols)
             points(ts$year[scaled.resids<lims[1]|scaled.resids>lims[2]],scaled.resids[scaled.resids<lims[1]|scaled.resids>lims[2]],pch=16,col='red',cex=1)
         }
@@ -399,7 +399,7 @@ if (resid.analysis) {
     par(oma=c(0,0,1,0))
     ##using package lawstat
     #runs test
-    runs.test.v2.out=runs.test.v2(res,plot.it=T)
+    runs.test.v2.out=runs.test.v2(res,plot.it=T,alternative='two.sided')
 
     #mtext(index.title,side=3,line=-1,outer=TRUE,cex=1.5)
     mtext(PlotTitle,side=3,line=-1,outer=TRUE,cex=1.5)

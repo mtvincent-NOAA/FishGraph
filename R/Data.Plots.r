@@ -29,12 +29,6 @@
 ## Part of FishGraph
 
 
-## spp 50 year 17 rows cex=1.5
-## spp1 45
-## spp 45 years 18 rows cex=1.75
-## 35 years 13 rows cex = 2.2
-
-
 Data.Plots  <-  function(x, DataName = deparse(substitute(x)), draft = TRUE,
                        graphics.type = NULL, use.color = TRUE, scaleSize=FALSE,cexval=1,fill=TRUE,sampleName="neff")
 {
@@ -94,13 +88,20 @@ Data.Plots  <-  function(x, DataName = deparse(substitute(x)), draft = TRUE,
     tmp=names(ts)[Lengthcols]
     LengthNames=substr(substr(tmp,7,nchar(tmp)),1,nchar(tmp)-7-nchar(sampleName))
 
-    ## Get the samples size of the length compositon
-
     ## Age compositions
     Agecols=grep(paste0("^acomp.*",sampleName),names(ts))
     AgeN=ts[,Agecols]
     tmp=names(ts)[Agecols]
     AgeNames=substr(substr(tmp,7,nchar(tmp)),1,nchar(tmp)-7-nchar(sampleName))
+
+    ## Close kin mark recapture
+    CKMRcol=grep('s1',names(x$ckmr_data))
+    if (length(CKMRcol) > 0){
+        CKMRYears=(unique(x$ckmr_data[,CKMRcol])-minyr)/(maxyr-minyr)
+        CKMRN=aggregate(x=x$ckmr_data$ckmr.npairs,by=list(x$ckmr_data$s1),FUN=sum)
+        names(CKMRN) <- c("Year","Comparisons")
+    }
+
 
 
     ## Check which data sources are used in this assessment
@@ -109,12 +110,13 @@ Data.Plots  <-  function(x, DataName = deparse(substitute(x)), draft = TRUE,
     PlotDiscard=ifelse(length(DiscardNames)==0,FALSE,TRUE)
     PlotLength=ifelse(length(LengthNames)==0,FALSE,TRUE)
     PlotAge=ifelse(length(AgeNames)==0,FALSE,TRUE)
+    PlotCKMR=ifelse(length(CKMRcol)==0,FALSE,TRUE)
 
     ## Calculate what the height of the y axis must be to plot all of these
-    ## Gives 2 spaces for
+    ## Gives 2 spaces for title and 1 for rows of data
     pt=1
     ttl=2
-    ycount =  length(CPUENames)*pt + length(LandingNames)*pt + length(DiscardNames)*pt + length(LengthNames)*pt + length(AgeNames)*pt + PlotCPUE*ttl + PlotLanding*ttl + PlotDiscard*ttl + PlotLength*ttl + PlotAge*ttl
+    ycount =  length(CPUENames)*pt + length(LandingNames)*pt + length(DiscardNames)*pt + length(LengthNames)*pt + length(AgeNames)*pt + PlotCPUE*ttl + PlotLanding*ttl + PlotDiscard*ttl + PlotLength*ttl + PlotAge*ttl + PlotCKMR*(ttl + pt)
     spacer=1/(ycount-2)
 
     AllNames=c(LandingNames,DiscardNames,CPUENames,LengthNames,AgeNames)
@@ -124,6 +126,10 @@ Data.Plots  <-  function(x, DataName = deparse(substitute(x)), draft = TRUE,
         if (length(unique(AllNames)) == 1) colvec = "gray55"
     } else {
         colvec  <- gray.colors(length(unique(AllNames)), start = 0.2, end = 0.8)
+    }
+    if(PlotCKMR) {
+        AllNames=c(AllNames,"CKMR")
+        colvec=c(colvec,"grey50")
     }
 
     fishcols=data.frame(names=unique(AllNames),col=colvec)
@@ -237,6 +243,17 @@ Data.Plots  <-  function(x, DataName = deparse(substitute(x)), draft = TRUE,
             }                               #For Age length
         }                               #if length==1
     }                 #End if plot Age
+
+    ## Put in CKMR sampling year if available
+    if (PlotCKMR){
+        counter=counter-spacer
+        text(midyr,counter,"Close Kin Mark Recapture Samples",cex=1.25,adj=c(0.5,0))
+        counter=counter-spacer
+        ifelse(scaleSize,cexmult <- (CKMRN$Comparisons/max(CKMRN$Comparisons,na.rm=TRUE))*cexval ,cexmult <- cexval)
+        points(CKMRYears,rep(counter,length(CKMRYears)),pch=22,lwd=3,bg=ifelse(fill,'grey50',"transparent"),cex=cexmult,col='grey50')
+        savecount=c(savecount,counter)
+        counter=counter-spacer
+    }
 
     axis(2,at=savecount,labels=AllNames,las=2,cex.axis=1.1)
     legend(1.05, -0.5, bty='n', xpd=NA, legend=fishcols[,1], pch=22, pt.bg=fishcols[,2],col=fishcols[,2],cex=1.1,yjust=0.5,lwd=3,lty=NA)

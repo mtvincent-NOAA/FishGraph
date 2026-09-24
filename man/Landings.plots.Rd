@@ -15,7 +15,8 @@ Landings.plots(
   D.units = x$info$units.discards,
   start.drop = 0,
   L.obs.pre = TRUE,
-  D.obs.pre = TRUE
+  D.obs.pre = TRUE,
+  confidential = NULL
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ columns (observed and predicted). When \code{FALSE}, each column represents
 observed landings.}
 
 \item{D.obs.pre}{Same as the preceding, but for discards.}
+
+\item{notconfidential}{a dataframe with names the same as landings and entries are booleans where true is confidential data. Will need to be input.}
 }
 \value{
 Graphics
