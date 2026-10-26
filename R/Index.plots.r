@@ -17,6 +17,8 @@
 #' @param resid.analysis When \code{TRUE}, additional diagnostic plots of residuals are created
 #' @param resid.tests Runs statistical tests on residuals. Set to "runs" for runs test only or "multiple" for additional tests. Defaults to argument \code{NULL} for none.
 #' @param runs.box Boolean for if you want to print the runs test 3 times SD on the log residual plot for the 2 box
+#' @param runs.cols A value of either \code{3} or \code{4}, when \code{3} uses standard red,
+#' yellow and green colors, when \code{4} include an orange color for between 0.01 and 0.05.
 #'
 #' @return Graphics
 #'
@@ -25,6 +27,7 @@
 #' @author K Shertzer
 #' @author R Cheshire
 #' @author K Purcell
+#' @author M Vincent
 #'
 
 #'
@@ -47,10 +50,11 @@
 # Fixed error: pairs plot now made only w/ > 1 series, MHP, 26 Aug 2009
 # Revised for R package September 2015 by K. Shertzer
 # Revised to add runs test and residual colors 2022 M. Vincent
+# Revised to add joint residuals plot 2026 M. Vincent
 #######################################################################################
 Index.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
    graphics.type = NULL, use.color = TRUE, connect.obsd = FALSE, from.zero = TRUE,
-   two.panel = TRUE, log.resid = TRUE, err.bar = TRUE, resid.analysis = TRUE, resid.tests=NULL, runs.box = TRUE)
+   two.panel = TRUE, log.resid = TRUE, err.bar = TRUE, resid.analysis = TRUE, resid.tests=NULL, runs.box = TRUE, runs.cols = 3)
 #######################################################################################
 #  ARGUMENTS:
 #  x - an R list with output from the assessment models
@@ -112,11 +116,19 @@ Index.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
           return(invisible(-1))
       }
     }
+
+    ## Check for x$t.series data frame:
+    if ((!(runs.cols %in% 3:4)) & runs.box)
+    {
+        warning("runs.cols must equal 3 or 4 colors", immediate. = TRUE)
+        return(invisible(-1))
+    }
+
     nplots <- length(Ucols) / 2                   # Number of distinct indices
     ### Set graphics parameters
     savepar <- FGSetPar(draft)
     plot.options = FGGetOptions()
-    ifelse (use.color, err.bar.col <- plot.options$color$clr.obsd, err.bar.col <- plot.options$bw$clr.obsd)
+    err.bar.col <- ifelse (use.color, plot.options$color$clr.obsd,  plot.options$bw$clr.obsd)
 
     PlotTitle <- ""
     # Define matrix to split screen later:
@@ -242,7 +254,11 @@ Index.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
 
         if (runs.box){
             lims=runstest$sig3lim
-            cols =  ifelse(runstest$p.runs<0.01,rgb(1,0,0,0.5),ifelse(runstest$p.runs<0.05,rgb(1,0.647,0,0.5),ifelse(runstest$p.runs<0.10,rgb(1, 1, 0.03,.5),rgb(0,1,0,0.5))))
+            if (runs.cols==3) {
+                cols =  ifelse(runstest$p.runs<0.05,rgb(1,0,0,0.5),ifelse(runstest$p.runs<0.10,rgb(1, 1, 0.03,.5),rgb(0,1,0,0.5)))
+            } else if (runs.cols==4){
+                cols =  ifelse(runstest$p.runs<0.01,rgb(1,0,0,0.5),ifelse(runstest$p.runs<0.05,rgb(1,0.647,0,0.5),ifelse(runstest$p.runs<0.10,rgb(1, 1, 0.03,.5),rgb(0,1,0,0.5))))
+            }
             rect(min(ts$year-1),lims[1],max(ts$year+1),lims[2],col=cols,border=cols)
             points(ts$year[scaled.resids<lims[1]|scaled.resids>lims[2]],scaled.resids[scaled.resids<lims[1]|scaled.resids>lims[2]],pch=16,col='red',cex=1)
         }
@@ -583,13 +599,40 @@ if (resid.analysis) {
 #     if (write.graphs) { FGSavePlot(GraphicsDirName, DataName,
 #                                    GraphName = "U.pairs", graphics.type) }
 # }
+##----------------------------------------------------------------------------------
+## Make plot of joint residuals: MTV Added 9/2026
+    ##----------------------------------------------------------------------------------
+    par(savepar)
+    par(mar=c(4.5,5,.5,.5))
+
+    palette(FGRichColors(nrow(resids)))
+
+    FGTimePlot(x = ts$year, y = resids[1,], lab.y = 'Index Residuals', Y1Col = 1, FGtype = 'stick', ylim = c(min(resids,na.rm=TRUE) , max(resids,na.rm=TRUE)) )
+    abline(h=0, lty=2)
+    loessDF= data.frame(y=c(resids),x=rep(ts$year,each=nrow(resids)))
+    loessModel <- loess(y~x,data=loessDF)
+    bploc=ts$year[apply(resids,2,function(x) !all(is.na(x)))]
+    boxplot(y~x,data=loessDF,xlab='',ylab='',add=TRUE,at=bploc,xaxt='n',yaxt='n')
+    for (i in 1:nrow(resids)) {
+        lines(ts$year, resids[i,], lwd = 2, type = 'h', pch = 16, col = i, cex = 1.0)
+        ## points(ts$year, resids[i,], lwd = 2, type = 'p', pch = 16, col = i, cex = 1.0)
+        points(ts$year, resids[i,], type = 'p', pch = 21, bg = i, cex = 1.0)
+    }
+    lines(ts$year, predict(loessModel, newdata = data.frame(x = ts$year)), col = 'black', lwd = 2)
+
+    RMSE=sqrt( sum(resids^2,na.rm=TRUE)/ length(which(!is.na(resids))))
+    text(max(ts$year),max(resids,na.rm=TRUE),labels=paste0("RMSE = ",round(RMSE,2)),adj= c(1,.5))
+    legend('bottomleft',, c(bar.names,'Loess'), col = c(1:nrow(resids),'black'), lty=c(rep(NA,nrow(resids)),1), pch = c(rep(16,nrow(resids)),NA),lwd=2, bty='n')
+    GraphName = "U.JointResid"
+    if (write.graphs) FGSavePlot(GraphicsDirName, DataName, GraphName, graphics.type)
 
 #----------------------------------------------------------------------------------
     # Add names to the matrix of residuals before returning it to caller
     rownames(resids) <- bar.names
     colnames(resids) <- ts$year
      # Restore graphics parameters and return:
-     par(savepar)
+    par(savepar)
+    palette('R4')
     return(invisible(t(resids)))
 }   # END OF FUNCTION
 #=================================================================================

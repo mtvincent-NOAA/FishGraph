@@ -134,15 +134,17 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
       fishery   <- FGTrimName(fileroot, removePrefix = 1, removeSuffix = 0)
       titleroot <- paste( "Data: ", DataName, "    Sample: ", fishery, sep = "")
       ### Get Nobs for this matrix from the x$t.series dataframe:
-      if (print.n || print.neff || plot.neff)
-      {  yearvec = rownames(prop.obsd)
+      ## if (print.n || print.neff || plot.neff)
+      ## {
+          yearvec = rownames(prop.obsd)
          strtmp = paste("x$t.series$", fileroot, ".n[x$t.series$year %in% yearvec]", sep="")
          Nobs = eval(parse(text = strtmp))
-      } else {Nobs=rep(NA,nyears)}
+      ## } else {Nobs=rep(NA,nyears)}
       ### Get Neff for this matrix from the x$t.series dataframe IF Neff isn't computed internally.
       ### otherwise, set up a blank vector for use when it IS computed:
-      if (print.neff || plot.neff)
-         {   if (compute.neff)
+      ## if (print.neff || plot.neff)
+      ##    {
+             if (compute.neff)
                 { Neff <- rep(NA_integer_, nyears) }
              else
                 { strtmp <- paste("x$t.series$", fileroot,
@@ -152,10 +154,10 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
                     {   warning("Comp.yearly.plots: comp.neff=FALSE but no data or NA in\n",
                             paste("   x$t.series$", fileroot, ".neff", sep = ""), call. = FALSE)
                         Neff <- rep(NA_integer_, nyears)
-					 } else (Neff<-round(Neff,digits=1))
+                    } else (Neff<-round(Neff,digits=1))
 
                 }
-         }
+         ## }
       ### Set up an empty vector for angular deviation:
       #if (print.angle) angle <- rep(NA, nyears)
 
@@ -191,7 +193,14 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
          if(ptype == "l")
             {  title.x <- FGMakeLabel("Length bin", units) }
          else
-            {  title.x <- "Age class" }
+         {  title.x <- "Age class" }
+
+         if (compute.neff)
+         {    num <- den <- 0.0
+             den <- sum( (prop.obsd[iyear,] - prop.pred[iyear,])^2)
+             num <- sum ( prop.pred[iyear,] * (1 - prop.pred[iyear,]))
+             Neff[iyear] <- round(num/den, digits=1)
+         }
 
          ## Plot axes and notations:
          if (! uniform) ymax <- max(c(prop.obsd[iyear,], prop.pred[iyear,]))
@@ -200,7 +209,7 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
          #   }
          #else { if (length(bins) == 1) xlim <- c(bins[1] - 2, bins[1] + 2) else
          #       xlim <- c(bins[1], bins[1] + (bins[2]-bins[1]) * 4)}
-         if ((!is.na(Nobs[iyear]) & Nobs[iyear]>0) | plot.missing ) { #Only print out if not na sample size or if plot.missing is TRUE
+         if ((!is.na(Nobs[iyear]) & Nobs[iyear]>0) & (!is.na(Neff[iyear]) & Neff[iyear]>0) | plot.missing ) { #Only print out if not na sample size or if plot.missing is TRUE
          plot(bins, prop.pred[iyear,], ylim = c(0, ymax),
             xlab = title.x, ylab = "Proportion", main = mtitle, type = "n")
          grid(col = "lightgray", lty = 1)
@@ -234,12 +243,7 @@ function(x, DataName = deparse(substitute(x)), draft = TRUE,
             }
          if (print.neff || plot.neff)
             {  ### Add effective N and ratio Neff/N to plot
-               if (compute.neff)
-               {    num <- den <- 0.0
-                    den <- sum( (prop.obsd[iyear,] - prop.pred[iyear,])^2)
-                    num <- sum ( prop.pred[iyear,] * (1 - prop.pred[iyear,]))
-                    Neff[iyear] <- round(num/den, digits=1)
-                }
+
                if (print.neff)
                {  anntext <- bquote(Effective ~~ italic(N) == .(Neff[iyear]))
                   text(xloc, yloc, anntext, adj = c(1, 1), cex = 0.9)

@@ -14,7 +14,8 @@ function()
             clr.obsd = "darkorchid4",
             clr.pred = "black",
             clr.lightline = "wheat3",
-            clr.line2 = "sienna4"),
+            clr.line2 = "#1B9E77",
+            clr.obsd2 = "#D95F02"),
         bw = list(
             clr.grid = "lightgray",
             lty.grid = "solid",
@@ -25,7 +26,8 @@ function()
             clr.obsd = "black",
             clr.pred = "black",
             clr.lightline = "gray60",
-            clr.line2 = "black")
+            clr.line2 = "gray75",
+            clr.obsd2 = "gray35")
         )
     options(FGoptions = fgopts)
     #assign("FGoptions", fgopts, pos = 1)

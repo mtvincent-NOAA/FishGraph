@@ -136,7 +136,7 @@ FGRunsPlot <- function(year,scaled.resids,lab.y,PlotTitle){
 #'
 #'
 #'@export
-ALRuns.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE, graphics.type = NULL, log.resid = TRUE){
+ALLRuns.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE, graphics.type = NULL, log.resid = TRUE){
 
     Errstring = ("No composition data found.  Terminating ALRuns.plots");
     if (! ("comp.mats" %in% names(x))) stop(Errstring)

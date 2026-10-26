@@ -34,6 +34,7 @@
 #' @author K Shertzer
 #' @author R Cheshire
 #' @author K Purcell
+#' @author M Vincent
 #'
 #' @examples \donttest{
 #' Comp.plots(gag)
@@ -128,7 +129,14 @@ Comp.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
         Y1Col  <- plot.options$bw$clr.line
     }
 
+    ## Set up the matrices to store the residual average length and age over time between observed and predicted
+    nageComp <- length(grep('acomp[.].*[.]ob',names(cm)))
+    namesAgeComp <- unname(sapply(names(cm)[grep('acomp[.].*[.]ob',names(cm))], function (x) FishGraph:::FGTrimName(x, removePrefix = 1, removeSuffix = 1)))
+    AgeResids <- matrix(NA, length(ts$year),nageComp,dimnames= list(ts$year, namesAgeComp))
 
+    nlenComp <- length(grep('lcomp[.].*[.]ob',names(cm)))
+    namesLenComp <- unname(sapply(names(cm)[grep('lcomp[.].*[.]ob',names(cm))], function (x) FishGraph:::FGTrimName(x, removePrefix = 1, removeSuffix = 1)))
+    LenResids <- matrix(NA, length(ts$year),nlenComp,dimnames= list(ts$year, namesLenComp))
 
     for (iplot in 1:nplots) {
 
@@ -168,7 +176,7 @@ Comp.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
         }
         yr.block <- as.numeric(block.text)
         ##add last year to vector of #if(length(yr.block)>1){
-        yr.block=c(yr.block,max(as.numeric(rownames(as.data.frame(m1.all))))+1)
+        yr.block=c(yr.block,last(ts$year)+1) #max(as.numeric(rownames(as.data.frame(m1.all))))+1)
         ## titleroot is used as part of the plot title:
         titleroot <- paste("Fishery: ", gfileroot)
 
@@ -468,11 +476,80 @@ Comp.plots <- function(x, DataName = deparse(substitute(x)), draft = TRUE,
                 if(draft) title(main=FGMakeTitle(titleroot,DataName))
                 if (write.graphs) FGSavePlot(GraphicsDirName, DataName, GraphName = paste(RT,"QQScatter",gfileroot,sep="."),
                                              graphics.type)
+
             }                               #If adding residual plots
         }                                   #Loop over residual types
+
+#################################Joint residual plots of mean age  and length###########
+
+        ## Calculate the mean length/age by year for the observed and predicted
+        BinVals= as.numeric(dimnames(m1.all)[[2]])
+        meanVals1= c(m1.all%*%BinVals)
+        meanVals2= c(m2.all%*%BinVals)
+
+        ## Calculate the residual mean length/age by year and store in the correct matrix
+        if(substr(gfileroot, 1, 1)  == "l"){ #Length
+            LenResids[ts$year%in%as.numeric(dimnames(m1.all)[[1]]),dimnames(LenResids)[[2]]==groot]=log(meanVals1)-log(meanVals2)
+        }else{## Age
+            AgeResids[ts$year%in%as.numeric(dimnames(m1.all)[[1]]),dimnames(AgeResids)[[2]]==groot]=log(meanVals1)-log(meanVals2)
+        }
+
     }                                   #Loop over data matrices
 
     par(savepar)
+    par(mar=c(4.5,5,.5,.5))
+    ## ------------------------------------------------------------------------------
+    ## Make plot of joint residuals mean length by year: MTV Add 9/2026
+    ## ------------------------------------------------------------------------------
+    palette(FGRichColors(ncol(LenResids)))
+
+    FGTimePlot(x = ts$year, y = LenResids[,1], lab.y = 'Mean Length Residuals', Y1Col = 1, FGtype = 'stick', ylim = c(min(LenResids,na.rm=TRUE) , max(LenResids,na.rm=TRUE)) )
+    abline(h=0, lty=2)
+    loessDF= data.frame(y=c(LenResids),x=rep(ts$year,ncol(LenResids)))
+    bploc=ts$year[apply(LenResids,1,function(x) !all(is.na(x)))]
+    boxplot(y~x,data=loessDF,xlab='',ylab='',add=TRUE,at=bploc,xaxt='n',yaxt='n')
+    for (i in 1:ncol(LenResids)) {
+        lines(ts$year, LenResids[,i], lwd = 2, type = 'h', pch = 16, col = i, cex = 1.0)
+        ## points(ts$year, resids[i,], lwd = 2, type = 'p', pch = 16, col = i, cex = 1.0)
+        points(ts$year, LenResids[,i], type = 'p', pch = 21, bg = i, cex = 1.0)
+    }
+
+    loessModel <- loess(y~x,data=loessDF)
+    lines(ts$year, predict(loessModel, newdata = data.frame(x = ts$year)), col = 'black', lwd = 2)
+
+    RMSE=sqrt( sum(LenResids^2,na.rm=TRUE)/ length(which(!is.na(LenResids))))
+    text(max(ts$year),max(LenResids,na.rm=TRUE),labels=paste0("RMSE = ",round(RMSE,2)),adj= c(1,.5))
+    legend('bottomleft',, c(dimnames(LenResids)[[2]],'Loess'), col = c(1:ncol(LenResids),'black'), lty=c(rep(NA,ncol(LenResids)),1), pch = c(rep(16,ncol(LenResids)),NA),lwd=2, bty='n')
+    GraphName = "MeanLen.JointResid"
+    if (write.graphs) FGSavePlot(GraphicsDirName, DataName, GraphName, graphics.type)
+
+    ## ------------------------------------------------------------------------------
+    ## Make plot of joint residuals mean age by year: MTV Add 9/2026
+    ## ------------------------------------------------------------------------------
+    palette(FGRichColors(ncol(AgeResids)))
+
+    FGTimePlot(x = ts$year, y = AgeResids[,1], lab.y = 'Mean Age Residuals', Y1Col = 1, FGtype = 'stick', ylim = c(min(AgeResids,na.rm=TRUE) , max(AgeResids,na.rm=TRUE)) )
+    abline(h=0, lty=2)
+    loessDF= data.frame(y=c(AgeResids),x=rep(ts$year,ncol(AgeResids)))
+    bploc=ts$year[apply(AgeResids,1,function(x) !all(is.na(x)))]
+    boxplot(y~x,data=loessDF,xlab='',ylab='',add=TRUE,at=bploc,xaxt='n',yaxt='n')
+    for (i in 1:ncol(AgeResids)) {
+        lines(ts$year, AgeResids[,i], lwd = 2, type = 'h', pch = 16, col = i, cex = 1.0)
+        ## points(ts$year, resids[i,], lwd = 2, type = 'p', pch = 16, col = i, cex = 1.0)
+        points(ts$year, AgeResids[,i], type = 'p', pch = 21, bg = i, cex = 1.0)
+    }
+
+    loessModel <- loess(y~x,data=loessDF)
+    lines(ts$year, predict(loessModel, newdata = data.frame(x = ts$year)), col = 'black', lwd = 2)
+
+    RMSE=sqrt( sum(AgeResids^2,na.rm=TRUE)/ length(which(!is.na(AgeResids))))
+    text(max(ts$year),max(AgeResids,na.rm=TRUE),labels=paste0("RMSE = ",round(RMSE,2)),adj= c(1,.5))
+    legend('bottomleft',, c(dimnames(AgeResids)[[2]],'Loess'), col = c(1:ncol(AgeResids),'black'), lty=c(rep(NA,ncol(AgeResids)),1), pch = c(rep(16,ncol(AgeResids)),NA),lwd=2, bty='n')
+    GraphName = "MeanAge.JointResid"
+    if (write.graphs) FGSavePlot(GraphicsDirName, DataName, GraphName, graphics.type)
+
+    par(savepar)
+    palette('R4')
     return(invisible(NULL))
 }
                                         # End function definition

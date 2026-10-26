@@ -17,7 +17,8 @@ Index.plots(
   err.bar = TRUE,
   resid.analysis = TRUE,
   resid.tests = NULL,
-  runs.box = TRUE
+  runs.box = TRUE,
+  runs.cols = 3
 )
 }
 \arguments{
@@ -48,6 +49,9 @@ When \code{NULL}, no plots are saved.}
 \item{resid.tests}{Runs statistical tests on residuals. Set to "runs" for runs test only or "multiple" for additional tests. Defaults to argument \code{NULL} for none.}
 
 \item{runs.box}{Boolean for if you want to print the runs test 3 times SD on the log residual plot for the 2 box}
+
+\item{runs.cols}{A value of either \code{3} or \code{4}, when \code{3} uses standard red,
+yellow and green colors, when \code{4} include an orange color for between 0.01 and 0.05.}
 }
 \value{
 Graphics
@@ -70,4 +74,6 @@ K Shertzer
 R Cheshire
 
 K Purcell
+
+M Vincent
 }

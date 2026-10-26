@@ -225,9 +225,9 @@ function(x, DataName=deparse(substitute(x)),
                                         # Create matrix to hold annual totals:
             totals  <- matrix(0, n.mats, n.yr)
             colnames(totals) <- seq(from = yr.range[1], to = yr.range[2])
-                                        # Create vector to hold names for legend:
+            ## Create vector to hold names for legend:
             clr.names <- rep("", n.mats)
-                                        # Accumulate totals and store names for legend:
+            ## Accumulate totals and store names for legend:
             n.clr <- 0
             for (i in 1:length(indexlist)){
                ix = indexlist[i]
@@ -237,16 +237,57 @@ function(x, DataName=deparse(substitute(x)),
                 matlen = nrow(thismat)
                 totals[i, (1:matlen) + offset] <- rowSums(thismat)
                 n.clr <- n.clr + 1
-                                        # Store the fishery name into clr.names:
+               ## Store the fishery name into clr.names:
                 clr.names[n.clr] <- paste(substr(names(mats)[ix],1,1),FGTrimName(names(mats)[ix], removePrefix = 1),sep='.')
             } # End for i
             rownames(totals) <- clr.names
-                                        # Remove rows before argument first.year
+            ## Remove rows before argument first.year
             totals <- totals[, as.integer(colnames(totals)) >= first.year, drop = FALSE]
             if(draft) PlotTitle <- FGMakeTitle(paste(desc, "by fishery"), DataName)
 
             hrefval=NULL
             hrefstring=NULL
+            if (uu == 1){
+                if (!is.null(CLD.n.references[[1]])){
+                    hrefstring <- CLD.n.references[[1]]
+                    hrefindex <- which(names(x$parms) == CLD.n.references[[1]])
+                    hrefval <- unlist(x$parms[hrefindex])
+                } else if (!is.null(CLD.n.references[[2]]) & !is.null(CLD.n.references[[3]])){
+                    Lrefstring <- CLD.n.references[[2]]
+                    Lrefindex <- which(names(x$parms) == CLD.n.references[[2]])
+                    Lrefval <- unlist(x$parms[Lrefindex])
+                    Drefstring <- CLD.n.references[[3]]
+                    Drefindex <- which(names(x$parms) == CLD.n.references[[3]])
+                    Drefval <- unlist(x$parms[Drefindex])
+                    hrefval <- Lrefval + Drefval
+                    hrefstring <- paste("L",Drefstring,sep=" + ")
+                } else if (!is.null(CLD.n.references[[2]])){
+                    hrefstring <- CLD.n.references[[2]]
+                    hrefindex <- which(names(x$parms) == CLD.n.references[[2]])
+                    hrefval <- unlist(x$parms[hrefindex])
+                }
+            }
+            if (uu == 2){
+                if (!is.null(CLD.w.references[[1]])){
+                    hrefstring <- CLD.w.references[[1]]
+                    hrefindex <- which(names(x$parms) == CLD.w.references[[1]])
+                    hrefval <- unlist(x$parms[hrefindex])
+                } else if (!is.null(CLD.w.references[[2]]) & !is.null(CLD.w.references[[3]])){
+                    Lrefstring <- CLD.w.references[[2]]
+                    Lrefindex <- which(names(x$parms) == CLD.w.references[[2]])
+                    Lrefval <- unlist(x$parms[Lrefindex])
+                    Drefstring <- CLD.w.references[[3]]
+                    Drefindex <- which(names(x$parms) == CLD.w.references[[3]])
+                    Drefval <- unlist(x$parms[Drefindex])
+                    hrefval <- Lrefval + Drefval
+                    hrefstring <- paste("L",Drefstring,sep=" + ")
+                } else if (!is.null(CLD.w.references[[2]])){
+                    hrefstring <- CLD.w.references[[2]]
+                    hrefindex <- which(names(x$parms) == CLD.w.references[[2]])
+                    hrefval <- unlist(x$parms[hrefindex])
+                }
+            }
+
             FGBarplot(t(totals), lab.y = FGMakeLabel(desc, specs$uom[uu]),
                       use.color = use.color, PlotTitle = PlotTitle,
                       leg.title = "Fishery", href=hrefval, hrefname=hrefstring)
